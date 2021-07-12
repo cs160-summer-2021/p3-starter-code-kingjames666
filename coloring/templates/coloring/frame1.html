@@ -1,0 +1,221 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Screen 1</title>
+
+    <script type="text/javascript" src="{% static 'coloring/vendors/jquery/jquery-3.3.1.min.js' %}"></script>
+  	<script type="text/javascript" src="{% static 'coloring/vendors/paper/paper-full.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'coloring/static/coloring/vendors/bootstrap/css/bootstrap.css' %}"></script>
+
+    <style>
+      /* start of demo css */
+      #color-palette {
+        left: 270px;
+  			width: 460px;
+  			background-color: #f1f1f1;
+  			display: flex;
+  			flex-wrap: wrap;
+  			position: absolute;
+
+  		}
+
+  		.swatch {
+  			width: 40px;
+  			height: 50px;
+  			-moz-border-radius: 12px;
+  			-webkit-border-radius: 12px;
+  			border-radius: 12px;
+  			margin: 3px;
+  		}
+
+  		#myCanvas {
+  			  left: 120px;
+  		    padding-right: 0;
+  		    margin-left: auto;
+  		    margin-right: auto;
+  		    display: block;
+  		}
+      /* end of demo css*/
+
+      .parent {
+        position: relative;
+        top: 0;
+        left: 0;
+      }
+      .image1 {
+        position: relative;
+        top: 0;
+        left: 25px;
+      }
+      .image2 {
+        position: absolute;
+        top: 30px;
+        left: 30px;
+
+      }
+      .sameLine{
+        display: inline;
+      }
+      .textbox {
+        margin-left:250px;
+        height: 50px;
+        width: 500px;
+        background-color:white;
+        border-radius: 30px;
+      }
+      .textbox2 {
+        margin-left:150px;
+        height: 50px;
+        width: 700px;
+        background-color:rgb(69, 252, 3);
+        border-radius: 30px;
+      }
+      body {
+        background-image: url("https://r1.ilikewallpaper.net/iphone-x-wallpapers/download/74609/Follow-the-Yellow-Palmed-Road-iphone-x-wallpaper-ilikewallpaper_com.jpg");
+        background-position: center;
+      }
+    </style>
+
+    <!-- start of js code from demo.html-->
+    <script type="text/javascript" canvas="canvas">
+      window.onload = function() {
+        var canvas = document.getElementById('myCanvas');
+
+        // coloring page
+        var mandala = {
+          item: null,
+          lastClicked: null,
+          filePath: '/static/coloring/images/mandala-freepik.svg'
+        };
+
+        // color palette
+        var cp = {
+          history: ["#000000"], // black selected by default
+          options: [],
+          $container: $('#color-palette')
+        }
+
+        function myCustomInteraction() {
+          var tool = new paper.Tool();
+
+          tool.onMouseDown = function (event) {
+              var hit = mandala.item.hitTest(event.point, { tolerance: 10, fill: true });
+              if (hit) {
+                  // Color pallette keeps track of the full history of colors, though we
+                  // only color in with the most-recent color.
+                  hit.item.fillColor = cp.history[cp.history.length - 1];
+              }
+
+          }
+        }
+
+        // create a color palette with the given colors
+        function createColorPalette(colors){
+
+          // create a swatch for each color
+          for (var i = colors.length - 1; i >= 0; i--) {
+            var $swatch = $("<div>").css("background-color", colors[i])
+                       .addClass("swatch");
+            $swatch.click(function(){
+              // add color to the color palette history
+                cp.history.push($(this).css("background-color"));
+            });
+            cp.$container.append($swatch);
+          }
+        }
+
+        // loads a set of colors from a json to create a color palette
+        function getColorsCreatePalette(){
+          cp.$container.html(" ");
+          $.getJSON('/static/coloring/vendors/material/material-colors.json', function(colors){
+            var keys = Object.keys(colors);
+            for (var i = keys.length - 1; i >= 0; i--) {
+              cp.options.push(colors[keys[i]][500]);
+            }
+            createColorPalette(cp.options);
+          });
+        }
+
+        function init(custom){
+          paper.setup(canvas);
+          getColorsCreatePalette();
+
+          paper.project.importSVG(mandala.filePath, function(item) {
+            mandala.item = item._children["design-freepik"];
+              paper.project.insertLayer(0,mandala.item);
+
+              if (custom) {
+                myCustomInteraction();
+              } else {
+                myGradientInteraction();
+              }
+
+          });
+        }
+
+        // Set up the mandala interactivity.
+        init(true);
+      }
+    </script>
+    <!-- end of js code from demo.html-->
+
+  </head>
+
+  <body style = "cursor:pointer">
+    <!-- 1. Code for the home button -->
+    <br>
+    <div class = "sameLine">
+      <a href="#">
+        <image alt = "home button" src = "https://image.flaticon.com/icons/png/512/60/60817.png"style = "width:10%;height:10%;padding-left:50px">
+      </a>
+    </div>
+
+    <!-- 2. Code for the menu button -->
+    <div class = "sameLine">
+      <a href ="#">
+        <image alt = "menu button" src = "https://cdn.icon-icons.com/icons2/2506/PNG/512/menu_icon_150667.png"style = "width:9%;height:9%;padding-left: 700px">
+      </a>
+    </div>
+    <br><br>
+
+    <!-- 3. Code for the text below buttons-->
+    <div class = "textbox"><h2 style = "text-align:center;padding-top:6px;color:red">Below is the image to be colored</h2></div>
+    <br><br>
+    <!-- 4. Code for the drwaing board frame and the image to be colored -->
+    <div class="parent">
+      <img class="image1" src="https://images-na.ssl-images-amazon.com/images/I/51kryH20ItL._AC_SY450_.jpg"style = "width:95%;height:800px">
+      <canvas class = "image2"id="myCanvas" width="750px" height="750px" ></canvas>
+    </div>
+    <br><br><br>
+
+    <!-- 5. Code for the color platte text box -->
+    <div class = "textbox2""><h1 style = "text-align:center">Color palette</h1></div>
+    <br><br>
+
+    <!-- 6. Code for the color palette -->
+    <div id="color-palette"></div>
+    <br><br><br><br><br><br><br><br><br>
+
+    <!-- 7. Code for the save and discard buttons -->
+    <script>
+      function saveFunction() {
+        alert("Thank you! Your image is saved!");
+      }
+      function discardFunction() {
+        window.location.href = 'http://localhost:8000/coloring/frame1';
+      }
+    </script>
+    <div>
+      <button onclick="discardFunction()"style = "margin-left: 180px;width: 150px;height: 150px;border-radius: 50%;background: rgb(250, 80, 80);display: inline-block;border: 0px;">
+        <h1 style = "text-align:center;color:white;">Discard</h1>
+      </button>
+      <button onclick="saveFunction()"style = "margin-left: 330px;width: 150px;height: 150px;border-radius: 50%;background: rgb(19, 235, 70);display: inline-block;border: 0px;">
+        <h1 style = "text-align:center;color:white;">Save</h1>
+      </button>
+     </div>
+  </body>
+
+</html>
